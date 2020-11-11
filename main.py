@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 import random
 import pyperclip
+import json
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
@@ -26,17 +27,33 @@ def save():
     w = website_entry.get()
     u = eu_entry.get()
     p = pass_entry.get()
+    new_data = {
+        w: {
+            "email": u,
+            "password": p,
+        }
+    }
 
     if len(w) == 0 or len(p) == 0:
         messagebox.showinfo(title="Oops", message="Please provide data for all fields")
     else:
-        is_ok = messagebox.askokcancel(title=w,
-                                       message=f"Details entered:\nEmail: {u}\nPassword: {p}\n OK to save?")
-        if is_ok:
-            with open("data.txt", mode="a") as f:
-                f.write(w + " | " + u + " | " + p + "\n")
-                website_entry.delete(0, END)
-                pass_entry.delete(0, END)
+        try:
+            with open("data.json", mode="r") as f:
+                # Read old data
+                data = json.load(f)
+        except FileNotFoundError:
+            with open("data.json", mode="w") as f:
+                json.dump(new_data, f, indent=4)
+        else:
+            # Update old data with new data
+            data.update(new_data)
+
+            with open("data.json", mode="w") as f:
+                # Save updated data
+                json.dump(data, f, indent=4)
+        finally:
+            website_entry.delete(0, END)
+            pass_entry.delete(0, END)
 
 
 # ---------------------------- UI SETUP ------------------------------- #
