@@ -22,10 +22,29 @@ def generate_password():
     pass_entry.insert(0, password)
     pyperclip.copy(password)
 
-# ---------------------------- SAVE PASSWORD ------------------------------- #
+def find_password():
+    w = website_entry.get().title()
+
+    try:
+        with open("data.json", mode="r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Oops", message="No json file to read!")
+    else:
+        try:
+            p = data[w]["password"]
+            u = data[w]["email"]
+        except KeyError:
+            messagebox.showinfo(title="Oops", message="No password for that Website!")
+        else:
+            messagebox.showinfo(title=f"{w}", message=f"Username: {u}\nPassword: {p}")
+            pyperclip.copy(p)
+
+
+        # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save():
-    w = website_entry.get()
-    u = eu_entry.get()
+    w = website_entry.get().title()
+    u = eu_entry.get().lower()
     p = pass_entry.get()
     new_data = {
         w: {
@@ -68,9 +87,11 @@ canvas.grid(column=1, row=0)
 
 website_label = Label(text="Website:")
 website_label.grid(column=0, row=1)
-website_entry = Entry(width=35)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = Entry(width=22)
+website_entry.grid(column=1, row=1)
 website_entry.focus()
+search_button = Button(text="Search", width=10, command=find_password)
+search_button.grid(column=2, row=1)
 
 eu_label = Label(text="Email/Username:")
 eu_label.grid(column=0, row=2)
